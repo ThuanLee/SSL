@@ -23,6 +23,12 @@ signed_payload = jws.sign(payload=hashed_payload, key=privateKey, algorithm='RS2
 #print("After sign:", signed_payload)
 
 # Send payload to server
-r = requests.post(url='http://localhost:8000/verify', data=payload_str, headers={'signature': signed_payload})
+r = requests.post(url='https://localhost:8000/verify', 
+                    data=payload_str, 
+                    headers={'signature': signed_payload},
+                    cert=('certificate.crt', 'private.key'),
+                    verify=False
+                    #verify='certificate.crt'
+                )
 
 print(r.content)
