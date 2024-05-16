@@ -6,7 +6,7 @@ privateKey = open('private.key').read()
 
 payload = {
     'id': 12345,
-    'message': 'hello, i am thuan'
+    'message': 'hello, i am vy'
 }
 
 # Convert json to string

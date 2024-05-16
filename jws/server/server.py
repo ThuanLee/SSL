@@ -30,7 +30,7 @@ async def verify(request: Request):
 
 if __name__ == "__main__":
     uvicorn.run("server:app",
-                    host="localhost",
+                    host="0.0.0.0",
                     port=8000,
                     reload=True,
                     ssl_certfile='certificate.crt',
