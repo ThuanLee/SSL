@@ -2,7 +2,7 @@ from jose import jws
 import json, requests, hashlib
 
 # Load private key
-privateKey = open('private_fake.key').read()
+privateKey = open('private.key').read()
 
 payload = {
     'id': 12345,
@@ -15,17 +15,17 @@ payload_str = json.dumps(payload)
 # Hash payload, convert to byte
 hashed_payload = hashlib.sha256(payload_str.encode("utf-8")).digest()
 
-print("Before sign:", hashed_payload)
+# print("Before sign:", hashed_payload)
 
 # Sign with private key
 signed_payload = jws.sign(payload=hashed_payload, key=privateKey, algorithm='RS256')
 
-#print("After sign:", signed_payload)
+# print("After sign:", signed_payload)
 
-# Send payload to server
+# Send payload to server with mTLS connection
 r = requests.post(url='https://localhost:8000/verify', 
                     data=payload_str, 
-                    headers={'signature': signed_payload},
+                    headers={'signature': signed_payload, 'hash_alg': "SHA256", 'sign_alg': "RS256"},
                     cert=('certificate.crt', 'private.key'),
                     verify='certificate.crt'
                 )
