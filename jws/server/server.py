@@ -8,35 +8,47 @@ app = FastAPI()
 
 @app.post('/verify')
 async def verify(request: Request):
-    # Get signature
-    signed_payload = request.headers.get('signature')
+    # Get signature, hash algorithm, sign algorithm
+    signature = request.headers.get('signature')
+    hash_alg = request.headers.get('hash_alg')
+    sign_alg = request.headers.get('sign_alg')
+ 
     # Get payload
     payload = await request.body()
     payload_str = payload.decode("utf-8")
  
     # Hash payload with same algorithm with client
-    hashed_payload = hashlib.sha256(payload_str.encode("utf-8")).digest()
-    print(payload_str)
+    if hash_alg == "SHA256": 
+        hashed_payload = hashlib.sha256(payload_str.encode("utf-8")).digest()
+    else:
+        return {
+            "reason": "Hash algorithm not supported",
+            "verify": "failed"
+        }
 
-    # Verify with public key
+    # Verify signature with cert
     try:
-        verified_payload = jws.verify(token=signed_payload, key=cert, algorithms='RS256')
+        if sign_alg == "RS256": 
+            verified_payload = jws.verify(token=signature, key=cert, algorithms='RS256')
+        else:
+            return {
+                "reason": "Sign algorithm not supported",
+                "verify": "failed"
+            }
     except:
         return {
-            "reason": "payload is not signed with CA cert",
+            "reason": "Payload is not signed with valid private key",
             "verify": "failed"
         }
 
     # Response
     if verified_payload == hashed_payload:
         return {
-            "signature": signed_payload,
-            "payload": payload_str,
             "verify": "ok"
         }
     else:
         return {
-            "reason": "payload has been changed",
+            "reason": "Payload has been changed",
             "verify": "failed"
         }
 
