@@ -19,14 +19,27 @@ async def verify(request: Request):
     print(payload_str)
 
     # Verify with public key
-    verified_payload = jws.verify(token=signed_payload, key=cert, algorithms='RS256')
-    print("Verify string", verified_payload)
+    try:
+        verified_payload = jws.verify(token=signed_payload, key=cert, algorithms='RS256')
+    except:
+        return {
+            "reason": "payload is not signed with CA cert",
+            "verify": "failed"
+        }
 
     # Response
     if verified_payload == hashed_payload:
-        return "ok"
+        return {
+            "signature": signed_payload,
+            "payload": payload_str,
+            "verify": "ok"
+        }
     else:
-        return "failed"
+        return {
+            "reason": "payload has been changed",
+            "verify": "failed"
+        }
+
 
 if __name__ == "__main__":
     uvicorn.run("server:app",

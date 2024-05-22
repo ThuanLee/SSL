@@ -2,7 +2,7 @@ from jose import jws
 import json, requests, hashlib
 
 # Load private key
-privateKey = open('private.key').read()
+privateKey = open('private_fake.key').read()
 
 payload = {
     'id': 12345,
@@ -30,4 +30,4 @@ r = requests.post(url='https://localhost:8000/verify',
                     verify='certificate.crt'
                 )
 
-print(r.content)
+print(r.json())
